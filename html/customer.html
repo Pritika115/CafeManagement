@@ -1,0 +1,209 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>customer - Cafe Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3C2F2F;    /* Dark coffee */
+            --secondary-color: #BE9B7B;  /* Light latte */
+            --accent-color: #854442;     /* Warm brown */
+            --background-color: #FFF4E6; /* Soft cream */
+            --text-color: #2A1E1E;      /* Deep brown */
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: var(--secondary-color);
+            border-radius: 2px;
+        }
+
+        .add-customer-link {
+            display: block;
+            color: var(--white);
+            background-color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 400;
+            padding: 0.8rem 2rem;
+            border-radius: 25px;
+            text-align: center;
+            margin: 0 auto 2rem;
+            width: fit-content;
+            transition: all 0.3s ease;
+            border: 2px solid var(--primary-color);
+        }
+
+        .add-customer-link:hover {
+            background-color: var(--white);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        #customerContent {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: var(--white);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            padding: 1rem;
+        }
+
+        #customerContent table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        #customerContent th, #customerContent td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+        }
+
+        #customerContent th {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        #customerContent td {
+            background-color: var(--white);
+            border-bottom: 1px solid rgba(190, 155, 123, 0.2);
+        }
+
+        #customerContent tr:last-child td {
+            border-bottom: none;
+        }
+
+        #customerContent tr:hover td {
+            background-color: var(--background-color);
+            transition: background-color 0.2s ease;
+        }
+
+        .action-buttons a, .action-buttons button {
+            padding: 0.5rem 1rem;
+            margin: 0 0.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--white);
+            font-weight: 500;
+        }
+
+        .edit-btn {
+            background-color: var(--secondary-color);
+        }
+
+        .edit-btn:hover {
+            background-color: var(--accent-color);
+        }
+
+        .delete-btn {
+            background-color: #d9534f;
+        }
+
+        .delete-btn:hover {
+            background-color: #c9302c;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .add-customer-link {
+                padding: 0.7rem 1.5rem;
+            }
+
+            #customerContent {
+                padding: 0.5rem;
+            }
+
+            #customerContent th, #customerContent td {
+                padding: 0.8rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Customers</h1>
+    <a href="/addcustomer.html" class="add-customer-link">Add Customer</a>
+    <div id="customerContent"></div>
+    <script>
+        async function fetchcustomer() {
+            try {
+                const response = await fetch('/customer');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch customers');
+                }
+                const html = await response.text();
+                document.getElementById('customerContent').innerHTML = html;
+
+                // Add event listeners to delete buttons after the table is loaded
+                document.querySelectorAll('.delete-btn').forEach(button => {
+                    button.addEventListener('click', async (e) => {
+                        const id = e.target.getAttribute('data-id');
+                        if (confirm('Are you sure you want to delete this customer?')) {
+                            const formData = new FormData();
+                            formData.append('id', id);
+                            const response = await fetch('/deletecustomer', {
+                                method: 'POST',
+                                body: formData
+                            });
+                            const result = await response.text();
+                            alert(result);
+                            if (result.includes("successfully")) {
+                                fetchCustomers(); // Refresh the customer list
+                            }
+                        }
+                    });
+                });
+            } catch (error) {
+                document.getElementById('customerContent').innerHTML = `<div style="color: red; text-align: center;">Error: ${error.message}</div>`;
+            }
+        }
+
+        fetchcustomer();
+    </script>
+</body>
+</html>

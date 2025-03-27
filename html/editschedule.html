@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Schedule - Café Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Same styles as above */
+    </style>
+</head>
+<body>
+    <h1>Edit Schedule {scheduleId}</h1>
+    <form action="/updateschedule" method="post">
+        <input type="hidden" name="scheduleId" value="{scheduleId}">
+        <label>Date: <input type="date" name="shiftDate" value="{shiftDate}" required></label>
+        <label>Start Time: <input type="time" name="startTime" value="{startTime}" required></label>
+        <label>End Time: <input type="time" name="endTime" value="{endTime}" required></label>
+        <button type="submit">Save</button>
+    </form>
+    <a href="/dashboard">Back to Dashboard</a>
+</body>
+</html>

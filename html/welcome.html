@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Course Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6f4f37; /* Coffee Brown */
+            --secondary-color: #d3b89e; /* Light Cream */
+            --accent-color: #8e735b; /* Warm Beige */
+            --background-color: #f4f1ea; /* Soft Beige */
+            --text-color: #3e2c1c; /* Dark Coffee */
+            --white: #fff;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to bottom, var(--primary-color) 0%, var(--background-color) 100%);
+            color: var(--text-color);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .page-wrapper {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .auth-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .auth-card {
+            background-color: var(--white);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .auth-card h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+        }
+
+        .auth-card label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .auth-card input, .auth-card select {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .auth-card input:focus, .auth-card select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 5px rgba(111, 79, 55, 0.5); /* Coffee Brown Focus */
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            margin: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: #bca18b; /* Slightly Darker Cream */
+            transform: translateY(-2px);
+        }
+
+        .btn-accent {
+            background-color: var(--accent-color);
+            color: var(--white);
+        }
+
+        .btn-accent:hover {
+            background-color: #7a5c44; /* Darker Beige */
+            transform: translateY(-2px);
+        }
+
+        .auth-card a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-card a:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            background-color: #3e2c1c; /* Dark Coffee */
+            color: #ccc;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .welcome-section { display: none; }
+        .form-group { margin-bottom: 1rem; }
+        h2 { color: var(--accent-color); margin-top: 2rem; }
+
+        @media (max-width: 600px) {
+            .auth-card { padding: 1.5rem; }
+            .auth-card h1 { font-size: 1.5rem; }
+        }
+    </style>
+    <script>
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const form = document.getElementById("login-form");
+            const formData = new FormData(form);
+            const loginSection = document.getElementById("login-section");
+            const welcomeSection = document.getElementById("welcome-section");
+
+            fetch("/login", {
+                method: "POST",
+                body: new URLSearchParams(formData)
+            })
+            .then(response => response.text())
+            .then(data => {
+                alert(data);
+                if (data.includes("Login successful")) {
+                    sessionStorage.setItem("isLoggedIn", "true");
+                    loginSection.style.display = "none";
+                    welcomeSection.style.display = "block";
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+
+        // Check if already logged in
+        window.onload = function() {
+            if (sessionStorage.getItem("isLoggedIn") === "true") {
+                document.getElementById("login-section").style.display = "none";
+                document.getElementById("welcome-section").style.display = "block";
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="page-wrapper">
+        <main class="auth-container">
+            <div class="auth-card">
+                <div id="login-section">
+                    <h1>Login</h1>
+                    <form id="login-form" onsubmit="handleLogin(event)">
+                        <div class="form-group">
+                            <label for="email">Email:</label>
+                            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password">Password:</label>
+                            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </form>
+                    <a href="index">Back to Home</a>
+                </div>
+
+                <div id="welcome-section" class="welcome-section">
+                    <h1>Welcome to the Cafe</h1>
+                    <a href="/dashboard" class="btn btn-accent">Go to Dashboard</a>
+                    <a href="/updatepassword" class="btn btn-accent">Update Password</a>
+                    
+                    <h2>Place an Order</h2>
+                    <form action="/placeorder" method="post">
+                        <div class="form-group">
+                            <select name="itemId" required>
+                                <option value="" disabled selected>Select an item</option>
+                                <option value="1">Espresso - $3.50</option>
+                                <option value="2">Cappuccino - $4.00</option>
+                                <option value="3">Sandwich - $5.50</option>
+                                <option value="4">Cake - $4.50</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <input type="number" name="quantity" min="1" placeholder="Enter quantity" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Place Order</button>
+                    </form>
+
+                    <h2>Make a Reservation</h2>
+                    <form action="/makereservation" method="post">
+                        <div class="form-group">
+                            <input type="datetime-local" name="reservationDate" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="number" name="partySize" min="1" placeholder="Enter party size" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Make Reservation</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+        <footer class="footer">
+            <p>© 2025 Student Course Management System. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>

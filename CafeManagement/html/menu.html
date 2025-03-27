@@ -1,6 +1,0 @@
-<html><body><h1>Menu</h1><a href="/addmenu.html">Add Menu Item</a>
-    <div id="menuContent"></div>
-    <script>
-      fetch('/menu').then(r => r.text()).then(html => document.getElementById('menuContent').innerHTML = html);
-    </script>
-  </body></html>

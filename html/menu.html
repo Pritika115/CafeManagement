@@ -1,6 +1,136 @@
-<html><body><h1>Menu</h1><a href="/addmenu.html">Add Menu Item</a>
-    <div id="menuContent"></div>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu - Cafe Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4A2C2A;
+            --secondary-color: #C68B59;
+            --background-color: #FDF6E3;
+            --text-color: #2F1B15;
+            --white: #fff;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--background-color) 70%);
+            color: var(--text-color);
+            margin: 0;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .nav-links a, .logout-form button {
+            background-color: var(--secondary-color);
+            color: var(--white);
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+        }
+        .nav-links a:hover, .logout-form button:hover {
+            background-color: var(--primary-color);
+        }
+        table {
+            width: 100%;
+            max-width: 800px;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+        th, td {
+            padding: 0.8rem;
+            border: 1px solid var(--secondary-color);
+            text-align: left;
+        }
+        th {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+        .edit-btn, .delete-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .edit-btn {
+            background-color: var(--secondary-color);
+            color: var(--white);
+            text-decoration: none;
+        }
+        .delete-btn {
+            background-color: #d9534f;
+            color: var(--white);
+        }
+    </style>
+</head>
+<body>
+    <h1>Menu Management</h1>
+    
+    <!-- Navigation links -->
+    <div class="nav-links">
+        <a href="/welcome">Home</a>
+        <a href="/menu">Manage Menu</a>
+        <a href="/customer">Manage Customers</a>
+        <a href="/orderdetails">Order Details</a>
+    </div>
+    
+    <!-- Logout form -->
+    <form class="logout-form" onsubmit="handleLogout(event)">
+        <button type="submit">Logout</button>
+    </form>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Category</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Populated dynamically by HandleMenu -->
+        </tbody>
+    </table>
+    
+    <a href="/addmenu.html" class="edit-btn">Add New Menu Item</a>
+    
     <script>
-      fetch('/menu').then(r => r.text()).then(html => document.getElementById('menuContent').innerHTML = html);
+        async function handleLogout(event) {
+            event.preventDefault();
+            try {
+                const response = await fetch('/logout', {
+                    method: 'POST'
+                });
+                if (response.redirected) {
+                    window.location.href = response.url;
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
     </script>
-  </body></html>
+</body>
+</html>

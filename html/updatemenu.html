@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details - Café Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #8B4513; /* Coffee Brown */
+            --secondary-color: #D2691E; /* Chocolate */
+            --accent-color: #FFD700; /* Gold */
+            --background-color: #F5F5DC; /* Beige */
+            --card-background: #FFF8DC; /* Cornsilk */
+            --text-color: #4B382A; /* Dark Coffee */
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--background-color) url('https://www.transparenttextures.com/patterns/cafe.png');
+            color: var(--text-color);
+            margin: 0;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+        }
+
+        a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .order-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            background-color: var(--card-background);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            padding: 1rem;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
+        tr:nth-child(even) {
+            background-color: #F5E8C7;
+        }
+    </style>
+</head>
+<body>
+    <h1>Order Details</h1>
+    <a href="/addorder.html">Add Order Detail</a>
+    <div class="order-container" id="orderDetailsContent"></div>
+    <script>
+        fetch('/orderdetails')
+            .then(r => r.text())
+            .then(html => document.getElementById('orderDetailsContent').innerHTML = html);
+    </script>
+</body>
+</html>
