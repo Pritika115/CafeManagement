@@ -35,8 +35,14 @@ class Program
                         SendResponse(context.Response, HandleSignup(context.Request));
                     else if (requestUrl == "/login" && context.Request.HttpMethod == "POST")
                         SendResponse(context.Response, HandleLogin(context));
+                    else if (requestUrl == "/logout")
+                        SendResponse(context.Response, HandleLogout(context));  // Call the HandleLogout method for logout route
+
+
                     else if (requestUrl == "/placeorder" && context.Request.HttpMethod == "POST")
                         SendResponse(context.Response, HandlePlaceOrder(context));
+                    else if (requestUrl == "/submitfeedback" && context.Request.HttpMethod == "POST")
+                        SendResponse(context.Response, HandleSubmitFeedback(context));
                     else if (requestUrl == "/makereservation" && context.Request.HttpMethod == "POST")
                         SendResponse(context.Response, HandleMakeReservation(context));
                     else if (requestUrl == "/updatemenu" && context.Request.HttpMethod == "POST")
@@ -55,41 +61,41 @@ class Program
                         SendResponse(context.Response, HandleUpdatePassword(context));
                     else if (requestUrl == "/updatepassword")
                         SendResponse(context.Response, string.IsNullOrEmpty(userEmail) ? "<html><body><h1>Please log in.</h1></body></html>" : GetHtmlContent("updatepassword.html"));
-                    
+
                     else if (requestUrl == "/" || requestUrl == "/index")
                         SendResponse(context.Response, GetHtmlContent("index.html"));
                     else if (requestUrl == "/editorder" && context.Request.HttpMethod == "POST")
-    SendResponse(context.Response, HandleEditOrder(context));
-else if (requestUrl == "/updateorder" && context.Request.HttpMethod == "POST")
-    SendResponse(context.Response, HandleUpdateOrder(context));
-else if (requestUrl == "/deleteorder" && context.Request.HttpMethod == "POST")
-    SendResponse(context.Response, HandleDeleteOrder(context));
-else if (requestUrl == "/editreservation" && context.Request.HttpMethod == "POST")
-    SendResponse(context.Response, HandleEditReservation(context));
-else if (requestUrl == "/updatereservation" && context.Request.HttpMethod == "POST")
-    SendResponse(context.Response, HandleUpdateReservation(context));
-else if (requestUrl == "/deletereservation" && context.Request.HttpMethod == "POST")
-    SendResponse(context.Response, HandleDeleteReservation(context));
-else if (requestUrl == "/editmenu" && context.Request.HttpMethod == "POST")
-    SendResponse(context.Response, HandleEditMenu(context));
-else if (requestUrl == "/deletemenu" && context.Request.HttpMethod == "POST")
-    SendResponse(context.Response, HandleDeleteMenu(context));
-else if (requestUrl == "/editinventory" && context.Request.HttpMethod == "POST")
-    SendResponse(context.Response, HandleEditInventory(context));
-else if (requestUrl == "/deleteinventory" && context.Request.HttpMethod == "POST")
-    SendResponse(context.Response, HandleDeleteInventory(context));
-else if (requestUrl == "/editschedule" && context.Request.HttpMethod == "POST")
-    SendResponse(context.Response, HandleEditSchedule(context));
-else if (requestUrl == "/updateschedule" && context.Request.HttpMethod == "POST")
-    SendResponse(context.Response, HandleUpdateSchedule(context));
-else if (requestUrl == "/deleteschedule" && context.Request.HttpMethod == "POST")
-    SendResponse(context.Response, HandleDeleteSchedule(context));
-else if (requestUrl == "/editfeedback" && context.Request.HttpMethod == "POST")
-    SendResponse(context.Response, HandleEditFeedback(context));
-else if (requestUrl == "/updatefeedback" && context.Request.HttpMethod == "POST")
-    SendResponse(context.Response, HandleUpdateFeedback(context));
-else if (requestUrl == "/deletefeedback" && context.Request.HttpMethod == "POST")
-    SendResponse(context.Response, HandleDeleteFeedback(context));
+                        SendResponse(context.Response, HandleEditOrder(context));
+                    else if (requestUrl == "/updateorder" && context.Request.HttpMethod == "POST")
+                        SendResponse(context.Response, HandleUpdateOrderWithTransaction(context));
+                    else if (requestUrl == "/deleteorder" && context.Request.HttpMethod == "POST")
+                        SendResponse(context.Response, HandleDeleteOrder(context));
+                    else if (requestUrl == "/editreservation" && context.Request.HttpMethod == "POST")
+                        SendResponse(context.Response, HandleEditReservation(context));
+                    else if (requestUrl == "/updatereservation" && context.Request.HttpMethod == "POST")
+                        SendResponse(context.Response, HandleUpdateReservation(context));
+                    else if (requestUrl == "/deletereservation" && context.Request.HttpMethod == "POST")
+                        SendResponse(context.Response, HandleDeleteReservation(context));
+                    else if (requestUrl == "/editmenu" && context.Request.HttpMethod == "POST")
+                        SendResponse(context.Response, HandleEditMenu(context));
+                    else if (requestUrl == "/deletemenu" && context.Request.HttpMethod == "POST")
+                        SendResponse(context.Response, HandleDeleteMenu(context));
+                    else if (requestUrl == "/editinventory" && context.Request.HttpMethod == "POST")
+                        SendResponse(context.Response, HandleEditInventory(context));
+                    else if (requestUrl == "/deleteinventory" && context.Request.HttpMethod == "POST")
+                        SendResponse(context.Response, HandleDeleteInventory(context));
+                    else if (requestUrl == "/editschedule" && context.Request.HttpMethod == "POST")
+                        SendResponse(context.Response, HandleEditSchedule(context));
+                    else if (requestUrl == "/updateschedule" && context.Request.HttpMethod == "POST")
+                        SendResponse(context.Response, HandleUpdateSchedule(context));
+                    else if (requestUrl == "/deleteschedule" && context.Request.HttpMethod == "POST")
+                        SendResponse(context.Response, HandleDeleteSchedule(context));
+                    else if (requestUrl == "/editfeedback" && context.Request.HttpMethod == "POST")
+                        SendResponse(context.Response, HandleEditFeedback(context));
+                    else if (requestUrl == "/updatefeedback" && context.Request.HttpMethod == "POST")
+                        SendResponse(context.Response, HandleUpdateFeedback(context));
+                    else if (requestUrl == "/deletefeedback" && context.Request.HttpMethod == "POST")
+                        SendResponse(context.Response, HandleDeleteFeedback(context));
                     else
                         SendResponse(context.Response, "<html><body><h1>404 - Page Not Found</h1></body></html>");
                 }
@@ -139,7 +145,44 @@ else if (requestUrl == "/deletefeedback" && context.Request.HttpMethod == "POST"
                             string sessionId = Guid.NewGuid().ToString();
                             sessions[sessionId] = email;
                             context.Response.AppendCookie(new Cookie("sessionId", sessionId));
-                            return "Login successful!";
+
+                            // Return HTML with success message and redirect
+                            return @"<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Login Successful - Café Management System</title>
+    <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap' rel='stylesheet'>
+    <style>
+        :root {
+            --primary-color: #6B4226;
+            --secondary-color: #8B5D33;
+            --accent-color: #F1C27D;
+            --background-color: #F2E1C1;
+            --text-color: #4B3C2E;
+            --white: #ffffff;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to bottom, var(--primary-color) 0%, var(--background-color) 100%);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Successfully login!</h1>
+    <script>
+        setTimeout(() => { window.location.href = '/welcome'; }, 2000);
+    </script>
+</body>
+</html>";
                         }
                         return "Invalid credentials!";
                     }
@@ -148,194 +191,362 @@ else if (requestUrl == "/deletefeedback" && context.Request.HttpMethod == "POST"
             }
         }
     }
+    static string HandleLogout(HttpListenerContext context)
+    {
+        // Get the session ID from the cookie
+        string sessionId = context.Request.Cookies["sessionId"]?.Value;
+
+        // If sessionId exists, invalidate it
+        if (!string.IsNullOrEmpty(sessionId))
+        {
+            sessions.Remove(sessionId); // Remove the session from the dictionary
+
+            // Remove the session cookie by setting it with an expired date
+            var expiredCookie = new Cookie("sessionId", "")
+            {
+                Expires = DateTime.Now.AddDays(-1), // Set the expiration date to the past
+                Path = "/" // Set the path to match the cookie path
+            };
+            context.Response.Cookies.Add(expiredCookie); // Add the expired cookie to the response
+        }
+
+        // Manually set the location header for redirection
+        context.Response.StatusCode = 302; // HTTP Status Code for redirection
+        context.Response.Headers.Add("Location", "/login"); // Explicit redirection header
+
+        // Ensure the response is finished and the redirection happens
+        context.Response.Close(); // Explicitly close the response
+
+        return null; // Return null as the redirection happens via HTTP headers
+    }
+
+
 
     static string HandleDashboard(HttpListenerRequest request)
     {
         string userEmail = GetUserEmailFromSession(request);
         if (string.IsNullOrEmpty(userEmail))
+        {
             return "<html><body><h1>Please log in to view the dashboard.</h1></body></html>";
+        }
+
+        try
+        {
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                connection.Open();
+                string userQuery = "SELECT UserID, Role FROM Users WHERE Email = @Email";
+                int userId = 0;
+                string role = "";
+
+                // Log the user query
+                Console.WriteLine($"Executing query: {userQuery}");
+
+                using (var cmd = new MySqlCommand(userQuery, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Email", userEmail);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            userId = Convert.ToInt32(reader["UserID"]);
+                            role = reader["Role"].ToString();
+                        }
+                        else
+                        {
+                            Console.WriteLine("No user found with the given email.");
+                            return "<html><body><h1>User not found. Please try again.</h1></body></html>";
+                        }
+                    }
+                }
+
+                var result = new StringBuilder();
+                result.Append("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\">");
+                result.Append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">");
+                result.Append("<title>Café Dashboard</title>");
+                result.Append("<link href=\"https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap\" rel=\"stylesheet\">");
+                result.Append("<style>");
+                result.Append(":root {");
+                result.Append("--primary-color: #6B4226; --secondary-color: #8B5D33; --accent-color: #F1C27D; --background-color: #F2E1C1; --text-color: #4B3C2E; --white: #ffffff;");
+                result.Append("} ");
+                result.Append("body { font-family: 'Poppins', sans-serif; background: linear-gradient(to bottom, var(--primary-color) 0%, var(--background-color) 100%); color: var(--text-color); margin: 0; padding: 20px; }");
+                result.Append("h1, h2 { text-align: center; }");
+                result.Append("table { width: 90%; margin: 20px auto; border-collapse: collapse; background: var(--white); }");
+                result.Append("th, td { padding: 10px; border: 1px solid #ccc; text-align: center; }");
+                result.Append("th { background-color: var(--secondary-color); color: var(--white); }");
+                result.Append("button { margin: 5px; padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; }");
+                result.Append(".edit-btn { background-color: #3498db; color: var(--white); }");
+                result.Append(".delete-btn { background-color: #e74c3c; color: var(--white); }");
+                result.Append("button:hover { opacity: 0.8; }");
+                result.Append("a { display: block; text-align: center; margin-top: 20px; color: var(--primary-color); text-decoration: none; font-weight: bold; }");
+
+                // Notifications Styles
+                result.Append("ul { list-style-type: none; padding: 0; margin: 0; }");
+                result.Append("li { background-color: var(--white); border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 4px; font-size: 16px; color: var(--primary-color); }");
+                result.Append(".no-notification { font-style: italic; color: #666; text-align: center; }");
+
+                result.Append("</style></head><body>");
+                result.Append("<h1>Café Dashboard</h1>");
+
+                // Display Notifications
+                result.Append("<h2>Your Notifications</h2><ul>");
+                string notificationQuery = "SELECT Message FROM Notifications WHERE UserID = @UserID ORDER BY NotificationID DESC";
+                using (var cmd = new MySqlCommand(notificationQuery, connection))
+                {
+                    cmd.Parameters.AddWithValue("@UserID", userId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            while (reader.Read())
+                            {
+                                result.Append($"<li>{reader["Message"]}</li>");
+                            }
+                        }
+                        else
+                        {
+                            result.Append("<li class='no-notification'>No notifications</li>");
+                        }
+                    }
+                }
+                result.Append("</ul>");
+
+                // Customer Dashboard
+                if (role == "Customer")
+                {
+                    // Orders
+                    result.Append("<h2>Your Orders</h2><table><tr><th>Order ID</th><th>Total</th><th>Date</th><th>Status</th><th>Actions</th></tr>");
+                    string orderQuery = "SELECT OrderID, TotalAmount, OrderDate, Status FROM Orders WHERE UserID = @UserID";
+                    using (var cmd = new MySqlCommand(orderQuery, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@UserID", userId);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                result.Append($"<tr><td>{reader["OrderID"]}</td><td>{reader["TotalAmount"]}</td><td>{reader["OrderDate"]}</td><td>{reader["Status"]}</td>");
+                                result.Append("<td>");
+                                result.Append($"<form action='/editorder' method='post' style='display:inline;'><input type='hidden' name='orderId' value='{reader["OrderID"]}'>");
+                                result.Append("<button type='submit' class='edit-btn'>Edit</button></form>");
+                                result.Append($"<form action='/deleteorder' method='post' style='display:inline;'><input type='hidden' name='orderId' value='{reader["OrderID"]}'>");
+                                result.Append("<button type='submit' class='delete-btn' onclick='return confirm(\"Are you sure?\");'>Delete</button></form>");
+                                result.Append("</td></tr>");
+                            }
+                        }
+                    }
+                    result.Append("</table>");
+
+                    // Reservations
+                    result.Append("<h2>Your Reservations</h2><table><tr><th>Reservation ID</th><th>Reservation Date</th><th>Status</th><th>Actions</th></tr>");
+                    string reservationQuery = "SELECT ReservationID, ReservationDate, Status FROM Reservations WHERE UserID = @UserID";
+                    using (var cmd = new MySqlCommand(reservationQuery, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@UserID", userId);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                result.Append($"<tr><td>{reader["ReservationID"]}</td><td>{reader["ReservationDate"]}</td><td>{reader["Status"]}</td>");
+                                result.Append("<td>");
+                                result.Append($"<form action='/editreservation' method='post' style='display:inline;'><input type='hidden' name='reservationId' value='{reader["ReservationID"]}'>");
+                                result.Append("<button type='submit' class='edit-btn'>Edit</button></form>");
+                                result.Append($"<form action='/deletereservation' method='post' style='display:inline;'><input type='hidden' name='reservationId' value='{reader["ReservationID"]}'>");
+                                result.Append("<button type='submit' class='delete-btn' onclick='return confirm(\"Are you sure?\");'>Delete</button></form>");
+                                result.Append("</td></tr>");
+                            }
+                        }
+                    }
+                    result.Append("</table>");
+                    // Feedback
+                    result.Append("<h2>Your Feedback</h2><table><tr><th>Feedback ID</th><th>Rating</th><th>Comment</th><th>Date</th><th>Actions</th></tr>");
+                    string feedbackQuery = "SELECT FeedbackID, Rating, Comment, FeedbackDate FROM Feedback WHERE UserID = @UserID";
+                    using (var cmd = new MySqlCommand(feedbackQuery, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@UserID", userId);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                result.Append($"<tr><td>{reader["FeedbackID"]}</td><td>{reader["Rating"]}</td><td>{reader["Comment"]}</td><td>{reader["FeedbackDate"]}</td>");
+                                result.Append("<td>");
+                                result.Append($"<form action='/deletefeedback' method='post' style='display:inline;'><input type='hidden' name='feedbackId' value='{reader["FeedbackID"]}'>");
+                                result.Append("<button type='submit' class='delete-btn' onclick='return confirm(\"Are you sure?\");'>Delete</button></form>");
+                                result.Append("</td></tr>");
+                            }
+                        }
+                    }
+                }
+                // Staff Dashboard
+                else if (role == "Staff")
+                {
+                    // Menu Management
+                    result.Append("<h2>Menu Management</h2><table><tr><th>Item ID</th><th>Name</th><th>Price</th><th>Actions</th></tr>");
+                    string menuQuery = "SELECT ItemID, ItemName, Price FROM Menu WHERE IsAvailable = TRUE";
+                    using (var cmd = new MySqlCommand(menuQuery, connection))
+                    {
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                result.Append($"<tr><td>{reader["ItemID"]}</td><td>{reader["ItemName"]}</td><td>{reader["Price"]}</td>");
+                                result.Append("<td>");
+                                result.Append($"<form action='/editmenu' method='post' style='display:inline;'><input type='hidden' name='itemId' value='{reader["ItemID"]}'>");
+                                result.Append("<button type='submit' class='edit-btn'>Edit</button></form>");
+                                result.Append($"<form action='/deletemenu' method='post' style='display:inline;'><input type='hidden' name='itemId' value='{reader["ItemID"]}'>");
+                                result.Append("<button type='submit' class='delete-btn' onclick='return confirm(\"Are you sure?\");'>Delete</button></form>");
+                                result.Append("</td></tr>");
+                            }
+                        }
+                    }
+                    result.Append("</table>");
+                }
+                // Manager Dashboard
+                else if (role == "Manager")
+                {
+                    // Staff Schedule
+                    result.Append("<h2>Staff Schedule</h2><table><tr><th>Schedule ID</th><th>Staff</th><th>Date</th><th>Shift</th><th>Actions</th></tr>");
+                    string schedQuery = "SELECT S.ScheduleID, U.Name, S.ShiftDate, CONCAT(S.StartTime, ' - ', S.EndTime) AS Shift FROM StaffSchedule S JOIN Users U ON S.UserID = U.UserID";
+                    using (var cmd = new MySqlCommand(schedQuery, connection))
+                    {
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                result.Append($"<tr><td>{reader["ScheduleID"]}</td><td>{reader["Name"]}</td><td>{reader["ShiftDate"]}</td><td>{reader["Shift"]}</td>");
+                                result.Append("<td>");
+                                result.Append($"<form action='/editschedule' method='post' style='display:inline;'><input type='hidden' name='scheduleId' value='{reader["ScheduleID"]}'>");
+                                result.Append("<button type='submit' class='edit-btn'>Edit</button></form>");
+                                result.Append($"<form action='/deleteschedule' method='post' style='display:inline;'><input type='hidden' name='scheduleId' value='{reader["ScheduleID"]}'>");
+                                result.Append("<button type='submit' class='delete-btn' onclick='return confirm(\"Are you sure?\");'>Delete</button></form>");
+                                result.Append("</td></tr>");
+                            }
+                        }
+                    }
+                    result.Append("</table>");
+
+                    // Feedback Section
+                    result.Append("<h2>Customer Feedback</h2><table><tr><th>Feedback ID</th><th>User</th><th>Rating</th><th>Comment</th><th>Date</th><th>Actions</th></tr>");
+                    string feedbackQuery = "SELECT FeedbackID, U.Name, F.Rating, F.Comment, F.FeedbackDate FROM Feedback F JOIN Users U ON F.UserID = U.UserID ORDER BY F.FeedbackDate DESC";
+                    using (var cmd = new MySqlCommand(feedbackQuery, connection))
+                    {
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                result.Append($"<tr><td>{reader["FeedbackID"]}</td><td>{reader["Name"]}</td><td>{reader["Rating"]}</td><td>{reader["Comment"]}</td><td>{reader["FeedbackDate"]}</td>");
+                                result.Append("<td>");
+                                result.Append($"<form action='/deletefeedback' method='post' style='display:inline;'><input type='hidden' name='feedbackId' value='{reader["FeedbackID"]}'>");
+                                result.Append("<button type='submit' class='delete-btn' onclick='return confirm(\"Are you sure?\");'>Delete</button></form>");
+                                result.Append("</td></tr>");
+                            }
+                        }
+                    }
+                    result.Append("</table>");
+                }
+
+                result.Append("<a href='/welcome'><button>Back to Welcome</button></a>");
+                result.Append("</body></html>");
+                return result.ToString();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            return "<html><body><h1>Unable to load dashboard. Please try again later.</h1></body></html>";
+        }
+    }
+
+    // Method to handle feedback submission
+    static string HandleSubmitFeedback(HttpListenerContext context)
+    {
+        string userEmail = GetUserEmailFromSession(context.Request);
+        if (string.IsNullOrEmpty(userEmail))
+            return "Error: Not logged in.";
+
+        string postData = ReadPostData(context.Request);
+        var parsedData = HttpUtility.ParseQueryString(postData);
+        string feedback = parsedData["feedback"];
+        string rating = parsedData["rating"];
+
+        if (string.IsNullOrEmpty(feedback) || string.IsNullOrEmpty(rating))
+            return "Error: Missing feedback or rating.";
 
         using (var connection = new MySqlConnection(connectionString))
         {
             connection.Open();
-            string userQuery = "SELECT UserID, Role FROM Users WHERE Email = @Email";
+
+            // Get user ID
+            string userQuery = "SELECT UserID FROM Users WHERE Email = @Email";
             int userId = 0;
-            string role = "";
             using (var cmd = new MySqlCommand(userQuery, connection))
             {
                 cmd.Parameters.AddWithValue("@Email", userEmail);
                 using (var reader = cmd.ExecuteReader())
                 {
                     if (reader.Read())
-                    {
                         userId = Convert.ToInt32(reader["UserID"]);
-                        role = reader["Role"].ToString();
-                    }
                 }
             }
 
-            var result = new StringBuilder();
-            result.Append("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\">");
-            result.Append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">");
-            result.Append("<title>Café Dashboard</title>");
-            result.Append("<link href=\"https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap\" rel=\"stylesheet\">");
-            result.Append("<style>");
-            result.Append(":root {");
-            result.Append("--primary-color: #6B4226; --secondary-color: #8B5D33; --accent-color: #F1C27D; --background-color: #F2E1C1; --text-color: #4B3C2E; --white: #ffffff;");
-            result.Append("}");
-            result.Append("body { font-family: 'Poppins', sans-serif; background: linear-gradient(to bottom, var(--primary-color) 0%, var(--background-color) 100%); color: var(--text-color); margin: 0; padding: 20px; }");
-            result.Append("h1, h2 { text-align: center; }");
-            result.Append("table { width: 90%; margin: 20px auto; border-collapse: collapse; background: var(--white); }");
-            result.Append("th, td { padding: 10px; border: 1px solid #ccc; text-align: center; }");
-            result.Append("th { background-color: var(--secondary-color); color: var(--white); }");
-            result.Append("button { margin: 5px; padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; }");
-            result.Append(".edit-btn { background-color: #3498db; color: var(--white); }");
-            result.Append(".delete-btn { background-color: #e74c3c; color: var(--white); }");
-            result.Append("button:hover { opacity: 0.8; }");
-            result.Append("a { display: block; text-align: center; margin-top: 20px; color: var(--primary-color); text-decoration: none; font-weight: bold; }");
-            result.Append("</style></head><body>");
-            result.Append("<h1>Café Dashboard</h1>");
-
-            if (role == "Customer")
+            // Insert feedback into Feedback table
+            string feedbackQuery = "INSERT INTO Feedback (UserID, Rating, Comment, FeedbackDate) VALUES (@UserID, @Rating, @Comment, NOW())";
+            using (var cmd = new MySqlCommand(feedbackQuery, connection))
             {
-                // Orders
-                result.Append("<h2>Your Orders</h2><table><tr><th>Order ID</th><th>Total</th><th>Date</th><th>Status</th><th>Actions</th></tr>");
-                string orderQuery = "SELECT OrderID, TotalAmount, OrderDate, Status FROM Orders WHERE UserID = @UserID";
-                using (var cmd = new MySqlCommand(orderQuery, connection))
-                {
-                    cmd.Parameters.AddWithValue("@UserID", userId);
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            result.Append($"<tr><td>{reader["OrderID"]}</td><td>{reader["TotalAmount"]}</td><td>{reader["OrderDate"]}</td><td>{reader["Status"]}</td>");
-                            result.Append("<td>");
-                            result.Append($"<form action='/editorder' method='post' style='display:inline;'><input type='hidden' name='orderId' value='{reader["OrderID"]}'>");
-                            result.Append("<button type='submit' class='edit-btn'>Edit</button></form>");
-                            result.Append($"<form action='/deleteorder' method='post' style='display:inline;'><input type='hidden' name='orderId' value='{reader["OrderID"]}'>");
-                            result.Append("<button type='submit' class='delete-btn' onclick='return confirm(\"Are you sure?\");'>Delete</button></form>");
-                            result.Append("</td></tr>");
-                        }
-                    }
-                }
-                result.Append("</table>");
+                cmd.Parameters.AddWithValue("@UserID", userId);
+                cmd.Parameters.AddWithValue("@Rating", Convert.ToInt32(rating));
+                cmd.Parameters.AddWithValue("@Comment", feedback);
 
-                // Reservations
-                result.Append("<h2>Your Reservations</h2><table><tr><th>Reservation ID</th><th>Date</th><th>Party Size</th><th>Status</th><th>Actions</th></tr>");
-                string resQuery = "SELECT ReservationID, ReservationDate, PartySize, Status FROM Reservations WHERE UserID = @UserID";
-                using (var cmd = new MySqlCommand(resQuery, connection))
-                {
-                    cmd.Parameters.AddWithValue("@UserID", userId);
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            result.Append($"<tr><td>{reader["ReservationID"]}</td><td>{reader["ReservationDate"]}</td><td>{reader["PartySize"]}</td><td>{reader["Status"]}</td>");
-                            result.Append("<td>");
-                            result.Append($"<form action='/editreservation' method='post' style='display:inline;'><input type='hidden' name='reservationId' value='{reader["ReservationID"]}'>");
-                            result.Append("<button type='submit' class='edit-btn'>Edit</button></form>");
-                            result.Append($"<form action='/deletereservation' method='post' style='display:inline;'><input type='hidden' name='reservationId' value='{reader["ReservationID"]}'>");
-                            result.Append("<button type='submit' class='delete-btn' onclick='return confirm(\"Are you sure?\");'>Delete</button></form>");
-                            result.Append("</td></tr>");
-                        }
-                    }
-                }
-                result.Append("</table>");
-            }
-            else if (role == "Staff")
-            {
-                // Menu Management
-                result.Append("<h2>Menu Management</h2><table><tr><th>Item ID</th><th>Name</th><th>Price</th><th>Actions</th></tr>");
-                string menuQuery = "SELECT ItemID, ItemName, Price FROM Menu WHERE IsAvailable = TRUE";
-                using (var cmd = new MySqlCommand(menuQuery, connection))
-                {
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            result.Append($"<tr><td>{reader["ItemID"]}</td><td>{reader["ItemName"]}</td><td>{reader["Price"]}</td>");
-                            result.Append("<td>");
-                            result.Append($"<form action='/editmenu' method='post' style='display:inline;'><input type='hidden' name='itemId' value='{reader["ItemID"]}'>");
-                            result.Append("<button type='submit' class='edit-btn'>Edit</button></form>");
-                            result.Append($"<form action='/deletemenu' method='post' style='display:inline;'><input type='hidden' name='itemId' value='{reader["ItemID"]}'>");
-                            result.Append("<button type='submit' class='delete-btn' onclick='return confirm(\"Are you sure?\");'>Delete</button></form>");
-                            result.Append("</td></tr>");
-                        }
-                    }
-                }
-                result.Append("</table>");
-
-                // Inventory Management
-                result.Append("<h2>Inventory Management</h2><table><tr><th>ID</th><th>Item</th><th>Stock</th><th>Actions</th></tr>");
-                string invQuery = "SELECT InventoryID, ItemName, QuantityInStock FROM Inventory";
-                using (var cmd = new MySqlCommand(invQuery, connection))
-                {
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            result.Append($"<tr><td>{reader["InventoryID"]}</td><td>{reader["ItemName"]}</td><td>{reader["QuantityInStock"]}</td>");
-                            result.Append("<td>");
-                            result.Append($"<form action='/editinventory' method='post' style='display:inline;'><input type='hidden' name='inventoryId' value='{reader["InventoryID"]}'>");
-                            result.Append("<button type='submit' class='edit-btn'>Edit</button></form>");
-                            result.Append($"<form action='/deleteinventory' method='post' style='display:inline;'><input type='hidden' name='inventoryId' value='{reader["InventoryID"]}'>");
-                            result.Append("<button type='submit' class='delete-btn' onclick='return confirm(\"Are you sure?\");'>Delete</button></form>");
-                            result.Append("</td></tr>");
-                        }
-                    }
-                }
-                result.Append("</table>");
-            }
-            else if (role == "Manager")
-            {
-                // Staff Schedule
-                result.Append("<h2>Staff Schedule</h2><table><tr><th>Schedule ID</th><th>Staff</th><th>Date</th><th>Shift</th><th>Actions</th></tr>");
-                string schedQuery = "SELECT S.ScheduleID, U.Name, S.ShiftDate, CONCAT(S.StartTime, ' - ', S.EndTime) AS Shift FROM StaffSchedule S JOIN Users U ON S.UserID = U.UserID";
-                using (var cmd = new MySqlCommand(schedQuery, connection))
-                {
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            result.Append($"<tr><td>{reader["ScheduleID"]}</td><td>{reader["Name"]}</td><td>{reader["ShiftDate"]}</td><td>{reader["Shift"]}</td>");
-                            result.Append("<td>");
-                            result.Append($"<form action='/editschedule' method='post' style='display:inline;'><input type='hidden' name='scheduleId' value='{reader["ScheduleID"]}'>");
-                            result.Append("<button type='submit' class='edit-btn'>Edit</button></form>");
-                            result.Append($"<form action='/deleteschedule' method='post' style='display:inline;'><input type='hidden' name='scheduleId' value='{reader["ScheduleID"]}'>");
-                            result.Append("<button type='submit' class='delete-btn' onclick='return confirm(\"Are you sure?\");'>Delete</button></form>");
-                            result.Append("</td></tr>");
-                        }
-                    }
-                }
-                result.Append("</table>");
-
-                // Feedback
-                result.Append("<h2>Feedback</h2><table><tr><th>ID</th><th>Customer</th><th>Rating</th><th>Comment</th><th>Actions</th></tr>");
-                string fbQuery = "SELECT F.FeedbackID, U.Name, F.Rating, F.Comment FROM Feedback F JOIN Users U ON F.UserID = U.UserID";
-                using (var cmd = new MySqlCommand(fbQuery, connection))
-                {
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            result.Append($"<tr><td>{reader["FeedbackID"]}</td><td>{reader["Name"]}</td><td>{reader["Rating"]}</td><td>{reader["Comment"]}</td>");
-                            result.Append("<td>");
-                            result.Append($"<form action='/editfeedback' method='post' style='display:inline;'><input type='hidden' name='feedbackId' value='{reader["FeedbackID"]}'>");
-                            result.Append("<button type='submit' class='edit-btn'>Edit</button></form>");
-                            result.Append($"<form action='/deletefeedback' method='post' style='display:inline;'><input type='hidden' name='feedbackId' value='{reader["FeedbackID"]}'>");
-                            result.Append("<button type='submit' class='delete-btn' onclick='return confirm(\"Are you sure?\");'>Delete</button></form>");
-                            result.Append("</td></tr>");
-                        }
-                    }
-                }
-                result.Append("</table>");
+                cmd.ExecuteNonQuery();
             }
 
-            result.Append("<a href='/welcome'><button>Back to Welcome</button></a>");
-            result.Append("</body></html>");
-            return result.ToString();
+            // Respond with success message and redirect to the welcome page
+            return "<!DOCTYPE html>" +
+                "<html lang='en'>" +
+                "<head>" +
+                "  <meta charset='UTF-8'>" +
+                "  <meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
+                "  <title>Feedback Submitted - Café Management System</title>" +
+                "  <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap' rel='stylesheet'>" +
+                "  <style>" +
+                "    :root {" +
+                "      --primary-color: #6B4226;" +    // Coffee Brown  
+                "      --secondary-color: #8B5D33;" +  // Medium Coffee  
+                "      --accent-color: #F1C27D;" +     // Creamy Beige  
+                "      --background-color: #F2E1C1;" + // Light Cream  
+                "      --text-color: #4B3C2E;" +       // Dark Chocolate  
+                "      --white: #ffffff;" +            // White background  
+                "    }" +
+                "    body {" +
+                "      font-family: 'Poppins', sans-serif;" +
+                "      background: linear-gradient(to bottom, var(--primary-color) 0%, var(--background-color) 100%);" +
+                "      color: var(--text-color);" +
+                "      margin: 0;" +
+                "      padding: 20px;" +
+                "      text-align: center;" +
+                "    }" +
+                "    h1 {" +
+                "      margin-top: 40px;" +
+                "    }" +
+                "    a {" +
+                "      display: block;" +
+                "      margin-top: 20px;" +
+                "      color: var(--primary-color);" +
+                "      text-decoration: none;" +
+                "      font-weight: bold;" +
+                "    }" +
+                "  </style>" +
+                "</head>" +
+                "<body>" +
+                "  <h1>Thank You for Your Feedback!</h1>" +
+                "  <script>" +
+                "    setTimeout(() => { window.location.href = '/welcome'; }, 2000);" +
+                "  </script>" +
+                "</body>" +
+                "</html>";
         }
     }
+
+
     static string HandleEditOrder(HttpListenerContext context)
     {
         string userEmail = GetUserEmailFromSession(context.Request);
@@ -345,6 +556,62 @@ else if (requestUrl == "/deletefeedback" && context.Request.HttpMethod == "POST"
         var parsedData = HttpUtility.ParseQueryString(postData);
         string orderId = parsedData["orderId"];
 
+        string orderDate = "";
+        int? currentItemId = null;
+        int quantity = 1;
+        int? orderDetailId = null; // To identify which OrderDetails row to edit
+        string menuOptions = "";
+
+        using (var connection = new MySqlConnection(connectionString))
+        {
+            connection.Open();
+
+            // Fetch order date from Orders
+            string orderQuery = "SELECT OrderDate FROM Orders WHERE OrderID = @OrderID";
+            using (var cmd = new MySqlCommand(orderQuery, connection))
+            {
+                cmd.Parameters.AddWithValue("@OrderID", orderId);
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        orderDate = ((DateTime)reader["OrderDate"]).ToString("yyyy-MM-ddTHH:mm");
+                    }
+                }
+            }
+
+            // Fetch the first OrderDetails row (single item assumption)
+            string detailQuery = "SELECT OrderDetailID, ItemID, Quantity FROM OrderDetails WHERE OrderID = @OrderID LIMIT 1";
+            using (var cmd = new MySqlCommand(detailQuery, connection))
+            {
+                cmd.Parameters.AddWithValue("@OrderID", orderId);
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        orderDetailId = reader.GetInt32("OrderDetailID");
+                        currentItemId = reader.GetInt32("ItemID");
+                        quantity = reader.GetInt32("Quantity");
+                    }
+                }
+            }
+
+            // Get menu items for dropdown
+            string menuQuery = "SELECT ItemID, ItemName FROM Menu WHERE IsAvailable = TRUE";
+            using (var cmd = new MySqlCommand(menuQuery, connection))
+            {
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int itemId = reader.GetInt32("ItemID");
+                        string itemName = reader.GetString("ItemName");
+                        menuOptions += $"<option value='{itemId}' {(currentItemId == itemId ? "selected" : "")}>{itemName}</option>";
+                    }
+                }
+            }
+        }
+
         return $@"<!DOCTYPE html>
 <html lang='en'>
 <head>
@@ -353,77 +620,35 @@ else if (requestUrl == "/deletefeedback" && context.Request.HttpMethod == "POST"
     <title>Edit Order - Café Management System</title>
     <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap' rel='stylesheet'>
     <style>
-        :root {{
-            --primary-color: #6B4226;    /* Coffee Brown */
-            --secondary-color: #8B5D33;  /* Medium Coffee */
-            --accent-color: #F1C27D;     /* Creamy Beige */
-            --background-color: #F2E1C1; /* Light Cream */
-            --text-color: #4B3C2E;       /* Dark Chocolate */
-            --white: #ffffff;            /* White background */
-        }}
-        body {{
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(to bottom, var(--primary-color) 0%, var(--background-color) 100%);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-        }}
-        h1 {{
-            margin-top: 40px;
-            color: var(--primary-color);
-            font-size: 2.5rem;
-        }}
-        form {{
-            margin: 20px auto;
-            max-width: 400px;
-        }}
-        label {{
-            display: block;
-            margin: 10px 0;
-            font-weight: 600;
-        }}
-        input, textarea {{
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            border: 1px solid var(--secondary-color);
-            border-radius: 5px;
-            box-sizing: border-box;
-        }}
-        input:focus, textarea:focus {{
-            outline: none;
-            border-color: var(--primary-color);
-        }}
-        button {{
-            padding: 10px 20px;
-            background-color: var(--secondary-color);
-            color: var(--white);
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-        }}
-        button:hover {{
-            background-color: var(--primary-color);
-        }}
-        a {{
-            display: block;
-            margin-top: 20px;
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: bold;
-        }}
-        a:hover {{
-            text-decoration: underline;
-        }}
+        :root {{ --primary-color: #6B4226; --secondary-color: #8B5D33; --accent-color: #F1C27D; --background-color: #F2E1C1; --text-color: #4B3C2E; --white: #ffffff; }}
+        body {{ font-family: 'Poppins', sans-serif; background: linear-gradient(to bottom, var(--primary-color) 0%, var(--background-color) 100%); color: var(--text-color); margin: 0; padding: 20px; text-align: center; }}
+        h1 {{ margin-top: 40px; color: var(--primary-color); font-size: 2.5rem; }}
+        form {{ margin: 20px auto; max-width: 400px; }}
+        label {{ display: block; margin: 10px 0; font-weight: 600; }}
+        input[type='datetime-local'], input[type='number'], select {{ width: 100%; padding: 10px; margin: 5px 0; border: 1px solid var(--secondary-color); border-radius: 5px; box-sizing: border-box; }}
+        input:focus, select:focus {{ outline: none; border-color: var(--primary-color); }}
+        button {{ padding: 10px 20px; background-color: var(--secondary-color); color: var(--white); border: none; border-radius: 5px; cursor: pointer; font-weight: 600; }}
+        button:hover {{ background-color: var(--primary-color); }}
+        a {{ display: block; margin-top: 20px; color: var(--primary-color); text-decoration: none; font-weight: bold; }}
+        a:hover {{ text-decoration: underline; }}
     </style>
 </head>
 <body>
     <h1>Edit Order {orderId}</h1>
     <form action='/updateorder' method='post'>
         <input type='hidden' name='orderId' value='{orderId}'>
-        <label>Status: <input type='text' name='status' required></label>
+        <input type='hidden' name='orderDetailId' value='{orderDetailId ?? 0}'>
+        <label>Order Date and Time: 
+            <input type='datetime-local' name='orderDate' value='{orderDate}' required>
+        </label>
+        <label>Item: 
+            <select name='itemId' required>
+                {menuOptions}
+            </select>
+        </label>
+        <label>Quantity: 
+            <input type='number' name='quantity' value='{quantity}' min='1' required>
+        </label>
         <button type='submit'>Save</button>
     </form>
     <a href='/dashboard'>Back to Dashboard</a>
@@ -439,21 +664,38 @@ else if (requestUrl == "/deletefeedback" && context.Request.HttpMethod == "POST"
         string postData = ReadPostData(context.Request);
         var parsedData = HttpUtility.ParseQueryString(postData);
         string orderId = parsedData["orderId"];
-        string status = parsedData["status"];
+        string orderDate = parsedData["orderDate"];
+        string itemId = parsedData["itemId"];
+        string quantity = parsedData["quantity"];
+
+        if (string.IsNullOrEmpty(orderId) || string.IsNullOrEmpty(orderDate) ||
+            string.IsNullOrEmpty(itemId) || string.IsNullOrEmpty(quantity))
+            return "Error: All fields are required.";
 
         using (var connection = new MySqlConnection(connectionString))
         {
             connection.Open();
-            string query = "UPDATE Orders SET Status = @Status WHERE OrderID = @OrderID";
-            using (var cmd = new MySqlCommand(query, connection))
-            {
-                cmd.Parameters.AddWithValue("@Status", status);
-                cmd.Parameters.AddWithValue("@OrderID", orderId);
-                cmd.ExecuteNonQuery();
-            }
-        }
 
-        return $@"<!DOCTYPE html>
+            // Call the UpdateOrderDetails procedure
+            using (var cmd = new MySqlCommand("UpdateOrderDetails", connection))
+            {
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@p_OrderID", Convert.ToInt32(orderId));
+                cmd.Parameters.AddWithValue("@p_OrderDate", DateTime.Parse(orderDate));
+                cmd.Parameters.AddWithValue("@p_ItemID", Convert.ToInt32(itemId));
+                cmd.Parameters.AddWithValue("@p_Quantity", Convert.ToInt32(quantity));
+
+                try
+                {
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    return $"Error updating order: {ex.Message}";
+                }
+            }
+
+            return $@"<!DOCTYPE html>
 <html lang='en'>
 <head>
     <meta charset='UTF-8'>
@@ -461,37 +703,11 @@ else if (requestUrl == "/deletefeedback" && context.Request.HttpMethod == "POST"
     <title>Order Updated - Café Management System</title>
     <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap' rel='stylesheet'>
     <style>
-        :root {{
-            --primary-color: #6B4226;    /* Coffee Brown */
-            --secondary-color: #8B5D33;  /* Medium Coffee */
-            --accent-color: #F1C27D;     /* Creamy Beige */
-            --background-color: #F2E1C1; /* Light Cream */
-            --text-color: #4B3C2E;       /* Dark Chocolate */
-            --white: #ffffff;            /* White background */
-        }}
-        body {{
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(to bottom, var(--primary-color) 0%, var(--background-color) 100%);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-        }}
-        h1 {{
-            margin-top: 40px;
-            color: var(--primary-color);
-            font-size: 2.5rem;
-        }}
-        a {{
-            display: block;
-            margin-top: 20px;
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: bold;
-        }}
-        a:hover {{
-            text-decoration: underline;
-        }}
+        :root {{ --primary-color: #6B4226; --secondary-color: #8B5D33; --accent-color: #F1C27D; --background-color: #F2E1C1; --text-color: #4B3C2E; --white: #ffffff; }}
+        body {{ font-family: 'Poppins', sans-serif; background: linear-gradient(to bottom, var(--primary-color) 0%, var(--background-color) 100%); color: var(--text-color); margin: 0; padding: 20px; text-align: center; }}
+        h1 {{ margin-top: 40px; color: var(--primary-color); font-size: 2.5rem; }}
+        a {{ display: block; margin-top: 20px; color: var(--primary-color); text-decoration: none; font-weight: bold; }}
+        a:hover {{ text-decoration: underline; }}
     </style>
 </head>
 <body>
@@ -499,7 +715,129 @@ else if (requestUrl == "/deletefeedback" && context.Request.HttpMethod == "POST"
     <script>setTimeout(() => {{ window.location.href = '/dashboard'; }}, 2000);</script>
 </body>
 </html>";
+        }
     }
+
+    static string HandleUpdateOrderWithTransaction(HttpListenerContext context)
+    {
+        string userEmail = GetUserEmailFromSession(context.Request);
+        if (string.IsNullOrEmpty(userEmail)) return "Error: Not logged in.";
+
+        string postData = ReadPostData(context.Request);
+        var parsedData = HttpUtility.ParseQueryString(postData);
+        string orderId = parsedData["orderId"];
+        string orderDetailId = parsedData["orderDetailId"];
+        string orderDate = parsedData["orderDate"];
+        string itemId = parsedData["itemId"];
+        string quantity = parsedData["quantity"];
+
+        if (string.IsNullOrEmpty(orderId) || string.IsNullOrEmpty(orderDate) ||
+            string.IsNullOrEmpty(itemId) || string.IsNullOrEmpty(quantity))
+            return "Error: All fields are required.";
+
+        using (var connection = new MySqlConnection(connectionString))
+        {
+            connection.Open();
+            using (var transaction = connection.BeginTransaction())
+            {
+                try
+                {
+                    // Update the order date
+                    string orderQuery = "UPDATE Orders SET OrderDate = @OrderDate WHERE OrderID = @OrderID";
+                    using (var cmd = new MySqlCommand(orderQuery, connection, transaction))
+                    {
+                        cmd.Parameters.AddWithValue("@OrderDate", DateTime.Parse(orderDate));
+                        cmd.Parameters.AddWithValue("@OrderID", orderId);
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    // Log orderDetailId for debugging
+                    Console.WriteLine("Updating OrderDetailID: " + orderDetailId);
+
+                    // If editing an existing order detail
+                    if (!string.IsNullOrEmpty(orderDetailId) && int.TryParse(orderDetailId, out int detailId) && detailId > 0)
+                    {
+                        string updateDetailQuery = @"
+                        UPDATE OrderDetails 
+                        SET ItemID = @ItemID, 
+                            Quantity = @Quantity, 
+                            UnitPrice = (SELECT Price FROM Menu WHERE ItemID = @ItemID)
+                        WHERE OrderDetailID = @OrderDetailID";
+
+                        using (var cmd = new MySqlCommand(updateDetailQuery, connection, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@OrderDetailID", detailId);
+                            cmd.Parameters.AddWithValue("@ItemID", Convert.ToInt32(itemId));
+                            cmd.Parameters.AddWithValue("@Quantity", Convert.ToInt32(quantity));
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                    else
+                    {
+                        // Optional: If only one item allowed per order, delete existing details
+                        string deleteOld = "DELETE FROM OrderDetails WHERE OrderID = @OrderID";
+                        using (var cmd = new MySqlCommand(deleteOld, connection, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@OrderID", orderId);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        string insertDetailQuery = @"
+                        INSERT INTO OrderDetails (OrderID, ItemID, Quantity, UnitPrice)
+                        VALUES (@OrderID, @ItemID, @Quantity, 
+                            (SELECT Price FROM Menu WHERE ItemID = @ItemID))";
+
+                        using (var cmd = new MySqlCommand(insertDetailQuery, connection, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@OrderID", orderId);
+                            cmd.Parameters.AddWithValue("@ItemID", Convert.ToInt32(itemId));
+                            cmd.Parameters.AddWithValue("@Quantity", Convert.ToInt32(quantity));
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+
+                    // Update TotalAmount based on OrderDetails
+                    string totalQuery = @"
+                    UPDATE Orders 
+                    SET TotalAmount = (
+                        SELECT SUM(Quantity * UnitPrice) 
+                        FROM OrderDetails 
+                        WHERE OrderID = @OrderID
+                    )
+                    WHERE OrderID = @OrderID";
+
+                    using (var cmd = new MySqlCommand(totalQuery, connection, transaction))
+                    {
+                        cmd.Parameters.AddWithValue("@OrderID", orderId);
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    transaction.Commit();
+
+                    return $@"<!DOCTYPE html>
+<html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<title>Order Updated - Café Management System</title>
+<link href='https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap' rel='stylesheet'>
+<style>:root {{ --primary-color: #6B4226; --secondary-color: #8B5D33; --accent-color: #F1C27D; --background-color: #F2E1C1; --text-color: #4B3C2E; --white: #ffffff; }}
+body {{ font-family: 'Poppins', sans-serif; background: linear-gradient(to bottom, var(--primary-color) 0%, var(--background-color) 100%); color: var(--text-color); margin: 0; padding: 20px; text-align: center; }}
+h1 {{ margin-top: 40px; color: var(--primary-color); font-size: 2.5rem; }}
+a {{ display: block; margin-top: 20px; color: var(--primary-color); text-decoration: none; font-weight: bold; }}
+a:hover {{ text-decoration: underline; }}</style></head>
+<body>
+<h1>Order Updated!</h1>
+<script>setTimeout(() => {{ window.location.href = '/dashboard'; }}, 2000);</script>
+</body></html>";
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    return $"Error updating order: {ex.Message}";
+                }
+            }
+        }
+    }
+
+
     static string HandleDeleteOrder(HttpListenerContext context)
     {
         string userEmail = GetUserEmailFromSession(context.Request);
@@ -1700,6 +2038,9 @@ else if (requestUrl == "/deletefeedback" && context.Request.HttpMethod == "POST"
 
         }
     }
+
+    
+
 
     static string HandleMakeReservation(HttpListenerContext context)
     {
