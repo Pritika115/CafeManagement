@@ -2039,7 +2039,7 @@ a:hover {{ text-decoration: underline; }}</style></head>
         }
     }
 
-    
+
 
 
     static string HandleMakeReservation(HttpListenerContext context)
@@ -2187,9 +2187,9 @@ a:hover {{ text-decoration: underline; }}</style></head>
 "</body>" +
 "</html>";
 
-        
-    
-}
+
+
+        }
     }
 
     static string HandleUpdateInventory(HttpListenerContext context)
@@ -2262,67 +2262,67 @@ a:hover {{ text-decoration: underline; }}</style></head>
     }
 
     static string HandleUpdatePassword(HttpListenerContext context)
-{
-    string userEmail = GetUserEmailFromSession(context.Request);
-    if (string.IsNullOrEmpty(userEmail))
     {
-        return "Error: Not logged in.";
-    }
-
-    string postData = ReadPostData(context.Request);
-    if (string.IsNullOrEmpty(postData))
-    {
-        return "Error: No data provided.";
-    }
-
-    var parsedData = HttpUtility.ParseQueryString(postData);
-    string currentPassword = parsedData["currentPassword"];
-    string newPassword = parsedData["newPassword"];
-    string confirmPassword = parsedData["confirmPassword"];
-
-    if (string.IsNullOrEmpty(currentPassword) || string.IsNullOrEmpty(newPassword) || string.IsNullOrEmpty(confirmPassword))
-    {
-        return "Error: All fields are required.";
-    }
-
-    if (newPassword != confirmPassword)
-    {
-        return "Error: New password and confirm password do not match.";
-    }
-
-    using (var connection = new MySqlConnection("server=localhost;database=CafeManagement;user=root;password=Pritika@2005"))
-    {
-        connection.Open();
-        string query = "SELECT PasswordHash FROM Users WHERE Email = @Email";
-        using (var cmd = new MySqlCommand(query, connection))
+        string userEmail = GetUserEmailFromSession(context.Request);
+        if (string.IsNullOrEmpty(userEmail))
         {
-            cmd.Parameters.AddWithValue("@Email", userEmail);
-            using (var reader = cmd.ExecuteReader())
+            return "Error: Not logged in.";
+        }
+
+        string postData = ReadPostData(context.Request);
+        if (string.IsNullOrEmpty(postData))
+        {
+            return "Error: No data provided.";
+        }
+
+        var parsedData = HttpUtility.ParseQueryString(postData);
+        string currentPassword = parsedData["currentPassword"];
+        string newPassword = parsedData["newPassword"];
+        string confirmPassword = parsedData["confirmPassword"];
+
+        if (string.IsNullOrEmpty(currentPassword) || string.IsNullOrEmpty(newPassword) || string.IsNullOrEmpty(confirmPassword))
+        {
+            return "Error: All fields are required.";
+        }
+
+        if (newPassword != confirmPassword)
+        {
+            return "Error: New password and confirm password do not match.";
+        }
+
+        using (var connection = new MySqlConnection("server=localhost;database=CafeManagement;user=root;password=Pritika@2005"))
+        {
+            connection.Open();
+            string query = "SELECT PasswordHash FROM Users WHERE Email = @Email";
+            using (var cmd = new MySqlCommand(query, connection))
             {
-                if (reader.Read())
+                cmd.Parameters.AddWithValue("@Email", userEmail);
+                using (var reader = cmd.ExecuteReader())
                 {
-                    string storedPasswordHash = reader["PasswordHash"].ToString();
-                    if (!VerifyPassword(currentPassword, storedPasswordHash))
+                    if (reader.Read())
                     {
-                        return "Error: Current password is incorrect.";
+                        string storedPasswordHash = reader["PasswordHash"].ToString();
+                        if (!VerifyPassword(currentPassword, storedPasswordHash))
+                        {
+                            return "Error: Current password is incorrect.";
+                        }
+                    }
+                    else
+                    {
+                        return "Error: User not found.";
                     }
                 }
-                else
-                {
-                    return "Error: User not found.";
-                }
+            }
+
+            string newPasswordHash = HashPassword(newPassword);
+            string updateQuery = "UPDATE Users SET PasswordHash = @NewPasswordHash WHERE Email = @Email";
+            using (var updateCmd = new MySqlCommand(updateQuery, connection))
+            {
+                updateCmd.Parameters.AddWithValue("@NewPasswordHash", newPasswordHash);
+                updateCmd.Parameters.AddWithValue("@Email", userEmail);
+                updateCmd.ExecuteNonQuery();
             }
         }
-
-        string newPasswordHash = HashPassword(newPassword);
-        string updateQuery = "UPDATE Users SET PasswordHash = @NewPasswordHash WHERE Email = @Email";
-        using (var updateCmd = new MySqlCommand(updateQuery, connection))
-        {
-            updateCmd.Parameters.AddWithValue("@NewPasswordHash", newPasswordHash);
-            updateCmd.Parameters.AddWithValue("@Email", userEmail);
-            updateCmd.ExecuteNonQuery();
-        }
-    }
 
         return "<!DOCTYPE html>" +
             "<html lang='en'>" +
@@ -2445,7 +2445,7 @@ a:hover {{ text-decoration: underline; }}</style></head>
         }
     }
 
-        static string GetHtmlContent(string path)
+    static string GetHtmlContent(string path)
     {
         try
         {
